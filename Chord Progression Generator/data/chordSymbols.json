@@ -1,0 +1,7 @@
+[
+    { "Symbol": "C", "RomanNumeral": "I", "Notes": [0, 4, 7] },
+    { "Symbol": "F", "RomanNumeral": "IV", "Notes": [5, 9, 0] },
+    { "Symbol": "G", "RomanNumeral": "V", "Notes": [7, 11, 2] },
+    { "Symbol": "Am", "RomanNumeral": "vi", "Notes": [9, 0, 4] }
+
+]

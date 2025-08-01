@@ -1,0 +1,24 @@
+[
+    {
+        "Name": "Axis Progression",
+        "Genre": "Pop",
+        "Type": "Loop",
+        "Bars": [
+            [["C"]],
+            [["G"]],
+            [["Am"]],
+            [["F"]]
+        ]
+    },
+    {
+        "Name": "Pachelbel Canon",
+        "Year": 1694,
+        "Period": "Baroque",
+        "Genre": "Classical",
+        "Type": "Linear",
+        "Bars": [
+        [["I"], ["V"], ["vi"], ["iii"]],
+        [["IV"], ["I"], ["IV"], ["V"]]
+        ]
+    }
+]
