@@ -1,13 +1,24 @@
 [
     {
-        "Name": "Axis Progression",
+        "Name": "Axis Progression Major",
         "Genre": "Pop",
         "Type": "Loop",
         "Bars": [
-            [["C"]],
-            [["G"]],
-            [["Am"]],
-            [["F"]]
+            [["I"]],
+            [["V"]],
+            [["vi"]],
+            [["IV"]]
+        ]
+    },
+    {
+        "Name": "Axis Progression Minor",
+        "Genre": "Pop",
+        "Type": "Loop",
+        "Bars": [
+            [["i"]],
+            [["bVI"]],
+            [["bIII"]],
+            [["bVII"]]
         ]
     },
     {
