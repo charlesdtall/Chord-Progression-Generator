@@ -3,6 +3,8 @@ namespace ChordProgressionGenerator.Models;
 public class ChordProgression
 {
     public string? Name { get; set; }
+    public string? Artist { get; set; }
+    public string? Composer { get; set; }
     public int? Year { get; set; }
     public string? Period { get; set; }
     public string? Genre { get; set; }
