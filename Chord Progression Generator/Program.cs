@@ -19,11 +19,11 @@ namespace ChordProgressionGenerator
             ChordProgressionService progressionService = new ChordProgressionService("data/chordProgressions.json");
             List<ChordProgression> progressions = progressionService.LoadProgressions();
 
-            ListFilteredProgressions(progressions);
+            //ListFilteredProgressions(progressions);
             //ListFilteredChordFrequencies(chords, progressions);
             //ListChordFrequencies(chords, progressions);
             //ListProgressions(progressions);
-            //ListChords(chords);
+            ListChords(chords);
         }
 
         public static Dictionary<ChordPair, double> GetChordPairFrequencies(
