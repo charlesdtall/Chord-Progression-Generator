@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ChordProgressionGenerator.Models;
 using ChordProgressionGenerator.Services;
-using ChordProgressionGenerator.Utils
+using ChordProgressionGenerator.Utils;
 
 namespace ChordProgressionGenerator
 {
@@ -26,7 +26,6 @@ namespace ChordProgressionGenerator
             //ListChords(chords);
         }
 
-        // Computes the frequency (as a percentage) of chord transitions across all progressions
         public static Dictionary<ChordPair, double> GetChordPairFrequencies(
             List<ChordSymbol> chords, List<ChordProgression> progressions)
         {
@@ -42,7 +41,6 @@ namespace ChordProgressionGenerator
             return percentages;
         }
 
-        // Builds a lookup table mapping each chord symbol to its canonical Roman numeral form
         static Dictionary<string, string> BuildCanonicalLookup(List<ChordSymbol> chords)
         {
             Dictionary<string, string> lookup = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -51,7 +49,7 @@ namespace ChordProgressionGenerator
             {
                 foreach (string name in chord.AllNames())
                 {
-                    if(!lookup.ContainsKey(name))
+                    if (!lookup.ContainsKey(name))
                     {
                         lookup[name] = chord.RomanNumeral;
                     }
@@ -61,7 +59,6 @@ namespace ChordProgressionGenerator
             return lookup;
         }
 
-        // Flattens a nested chord progression into a single list of chord strings, normalized to Roman numerals
         public static List<string> FlattenAndNormalize(ChordProgression progression, Dictionary<string, string> canonicalLookup)
         {
             List<string> flat = new List<string>();
@@ -83,7 +80,6 @@ namespace ChordProgressionGenerator
             return flat;
         }
 
-        // Counts how many times each chord pair appears across all progressions
         public static Dictionary<ChordPair, int> CountChordPairs(
             List<ChordProgression> progressions, Dictionary<string, string> canonicalLookup)
         {
@@ -91,7 +87,6 @@ namespace ChordProgressionGenerator
 
             foreach (ChordProgression progression in progressions)
             {
-                // Flatten and normalize the entire progression
                 List<string> flatChords = FlattenAndNormalize(progression, canonicalLookup);
 
                 for (int i = 0; i < flatChords.Count - 1; i++)
@@ -106,7 +101,6 @@ namespace ChordProgressionGenerator
                         pairCounts[pair] = 1;
                 }
 
-                // Handle looping progressions by connecting last to first chord
                 if (progression.Type == "Loop" && flatChords.Count > 1)
                 {
                     string from = flatChords[^1];
@@ -123,10 +117,10 @@ namespace ChordProgressionGenerator
             return pairCounts;
         }
 
-        // Takes list of progressions and filters it by optional criteria
+        // Updated to accept List<string>? for genres
         public static List<ChordProgression> FilterProgressions(
             List<ChordProgression> progressions,
-            string? genre,
+            List<string>? filterGenres,
             string? period,
             string? composer,
             string? artist,
@@ -136,7 +130,7 @@ namespace ChordProgressionGenerator
         {
             return progressions
                 .Where(p =>
-                    (string.IsNullOrEmpty(genre) || p.Genre?.Equals(genre, StringComparison.OrdinalIgnoreCase) == true) &&
+                    (filterGenres == null || (p.Genre != null && p.Genre.Any(g => filterGenres.Any(fg => fg.Equals(g, StringComparison.OrdinalIgnoreCase))))) &&
                     (string.IsNullOrEmpty(period) || p.Period?.Equals(period, StringComparison.OrdinalIgnoreCase) == true) &&
                     (string.IsNullOrEmpty(composer) || p.Composer?.Equals(composer, StringComparison.OrdinalIgnoreCase) == true) &&
                     (string.IsNullOrEmpty(artist) || p.Artist?.Equals(artist, StringComparison.OrdinalIgnoreCase) == true) &&
@@ -147,11 +141,11 @@ namespace ChordProgressionGenerator
                 .ToList();
         }
 
-        // Returns frequency of pairs once they are filtered
+        // Updated to pass List<string>? for genres
         public static Dictionary<ChordPair, double> GetFilteredChordPairFrequencies(
             List<ChordSymbol> chords,
             List<ChordProgression> allProgressions,
-            string? genre,
+            List<string>? filterGenres,
             string? period,
             string? artist,
             string? composer,
@@ -159,14 +153,11 @@ namespace ChordProgressionGenerator
             int? yearAfter,
             int? yearBefore)
         {
-            // First, filter progressions using optional metadata criteria
-            List<ChordProgression> filtered = FilterProgressions(allProgressions, genre, period, artist, composer, type, yearAfter, yearBefore);
-
-            // Then compute chord pair frequencies on the filtered list
+            List<ChordProgression> filtered = FilterProgressions(allProgressions, filterGenres, period, composer, artist, type, yearAfter, yearBefore);
             return GetChordPairFrequencies(chords, filtered);
         }
 
-        // Turns Filtered Pair Frequencies into a command line prompt for user interaction
+        // Updated user prompt to read list of genres and pass List<string> to filtering
         public static Dictionary<ChordPair, double> GetChordPairFrequenciesWithOptionalFiltering(
             List<ChordSymbol> chords, List<ChordProgression> progressions)
         {
@@ -178,9 +169,17 @@ namespace ChordProgressionGenerator
                 return GetChordPairFrequencies(chords, progressions);
             }
 
-            Console.Write("Filter by Genre (or leave blank): ");
-            string? genre = Console.ReadLine()?.Trim();
-            if (string.IsNullOrEmpty(genre)) genre = null;
+            Console.Write("Filter by Genre(s) (comma separated, or leave blank): ");
+            string? genreInput = Console.ReadLine()?.Trim();
+
+            List<string>? filterGenres = null;
+            if (!string.IsNullOrEmpty(genreInput))
+            {
+                filterGenres = genreInput
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(g => g.Trim())
+                    .ToList();
+            }
 
             Console.Write("Filter by Period (or leave blank): ");
             string? period = Console.ReadLine()?.Trim();
@@ -206,12 +205,11 @@ namespace ChordProgressionGenerator
             string? yearBeforeInput = Console.ReadLine()?.Trim();
             int? yearBefore = int.TryParse(yearBeforeInput, out int yb) ? yb : null;
 
-            return GetFilteredChordPairFrequencies(chords, progressions, genre, period, artist, composer, type, yearAfter, yearBefore);
+            return GetFilteredChordPairFrequencies(chords, progressions, filterGenres, period, artist, composer, type, yearAfter, yearBefore);
         }
 
-/*============================TESTING MODULES===============================*/
+        /*============================TESTING MODULES===============================*/
 
-        // Prints out each chord with its Roman numeral and note list
         static void ListChords(List<ChordSymbol> chords)
         {
             foreach (ChordSymbol chord in chords)
@@ -219,12 +217,11 @@ namespace ChordProgressionGenerator
                 string synonyms = (chord.Synonyms != null && chord.Synonyms.Any())
                     ? $", {string.Join(", ", chord.Synonyms)}"
                     : "";
-                
+
                 Console.WriteLine($"{chord.Symbol} ({chord.RomanNumeral}{synonyms}): {string.Join(", ", chord.Notes)}");
             }
         }
 
-        // Prints out all progressions with their metadata and structure
         static void ListProgressions(List<ChordProgression> progressions)
         {
             foreach (ChordProgression prog in progressions)
@@ -244,11 +241,11 @@ namespace ChordProgressionGenerator
                 if (!string.IsNullOrWhiteSpace(prog.Composer))
                     Console.WriteLine($"Composer: {prog.Composer ?? "Unknown"}");
 
-                if (!string.IsNullOrWhiteSpace(prog.Genre))
-                    Console.WriteLine($"Genre: {prog.Genre ?? "Unknown"}");
+                if (prog.Genre != null && prog.Genre.Count > 0)
+                    Console.WriteLine($"Genre: {string.Join(", ", prog.Genre)}");
 
                 if (!string.IsNullOrWhiteSpace(prog.Type))
-                    Console.Write($"Type: {prog.Type ?? "Unknown"}");
+                    Console.WriteLine($"Type: {prog.Type ?? "Unknown"}");
 
                 Console.WriteLine($"Progression:");
 
@@ -273,7 +270,7 @@ namespace ChordProgressionGenerator
             Console.Write("Do you want to apply filters? (y/n): ");
             string? response = Console.ReadLine()?.Trim().ToLower();
 
-            string? genre = null;
+            List<string>? filterGenres = null;
             string? period = null;
             string? artist = null;
             string? composer = null;
@@ -283,9 +280,15 @@ namespace ChordProgressionGenerator
 
             if (response == "y")
             {
-                Console.Write("Filter by Genre (or leave blank): ");
-                genre = Console.ReadLine()?.Trim();
-                if (string.IsNullOrEmpty(genre)) genre = null;
+                Console.Write("Filter by Genre(s) (comma separated, or leave blank): ");
+                string? genreInput = Console.ReadLine()?.Trim();
+                if (!string.IsNullOrEmpty(genreInput))
+                {
+                    filterGenres = genreInput
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(g => g.Trim())
+                        .ToList();
+                }
 
                 Console.Write("Filter by Period (or leave blank): ");
                 period = Console.ReadLine()?.Trim();
@@ -312,12 +315,10 @@ namespace ChordProgressionGenerator
                 yearBefore = int.TryParse(yearBeforeInput, out int yb) ? yb : null;
             }
 
-            // Apply filter
             List<ChordProgression> filtered = FilterProgressions(
-                allProgressions, genre, period, composer, artist, type, yearAfter, yearBefore
+                allProgressions, filterGenres, period, composer, artist, type, yearAfter, yearBefore
             );
 
-            // Print results
             if (filtered.Count == 0)
             {
                 Console.WriteLine("No progressions matched the filter.");
@@ -328,8 +329,6 @@ namespace ChordProgressionGenerator
             }
         }
 
-
-        // Displays how often each chord transition happens as a percentage of total transitions
         static void ListChordFrequencies(List<ChordSymbol> chords, List<ChordProgression> progressions)
         {
             Dictionary<ChordPair, double> pairPercentages = GetChordPairFrequencies(chords, progressions);
@@ -340,7 +339,6 @@ namespace ChordProgressionGenerator
             }
         }
 
-        // Displays how often each chord transtition happens as a percentage after being filtered
         static void ListFilteredChordFrequencies(List<ChordSymbol> chords, List<ChordProgression> progressions)
         {
             Dictionary<ChordPair, double> pairPercentages = GetChordPairFrequenciesWithOptionalFiltering(chords, progressions);
