@@ -1,7 +1,7 @@
 [
     {
         "Name": "Axis Progression Major",
-        "Genre": "Pop",
+        "Genre": ["Pop", "Rock"],
         "Type": "Loop",
         "Bars": [
             [["I"]],
@@ -12,7 +12,7 @@
     },
     {
         "Name": "Axis Progression Minor",
-        "Genre": "Pop",
+        "Genre": ["Pop", "Rock"],
         "Type": "Loop",
         "Bars": [
             [["i"]],
@@ -25,7 +25,7 @@
         "Name": "Pachelbel Canon",
         "Year": 1694,
         "Period": "Baroque",
-        "Genre": "Classical",
+        "Genre": ["Classical"],
         "Type": "Linear",
         "Bars": [
         [["I"], ["V"], ["vi"], ["iii"]],

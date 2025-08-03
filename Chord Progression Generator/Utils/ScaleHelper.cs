@@ -19,6 +19,8 @@ public static class ScaleHelper
         { "Lydian",       new[] { 2, 2, 2, 1, 2, 2, 1 } },
         { "Mixolydian",   new[] { 2, 2, 1, 2, 2, 1, 2 } },
         { "Locrian",      new[] { 1, 2, 2, 1, 2, 2, 2 } },
+        { "Acoustic",     new[] { 2, 2, 2, 1, 2, 1, 1 } },
+        { "HarmonicMajor", new[] { 2, 2, 1, 2, 1, 3, 1 } },
         { "PentatonicMajor", new[] { 2, 2, 3, 2, 3 } },
         { "PentatonicMinor", new[] { 3, 2, 2, 3, 2 } },
         { "Blues",        new[] { 3, 2, 1, 1, 3, 2 } }
@@ -28,12 +30,15 @@ public static class ScaleHelper
     // Generates a scale from a root note name and scale type.
     public static List<string> GetScale(string rootNote, string scaleType, bool useFlats = false)
     {
-        Dictionary<string, int> noteMap = useFlats ? NoteHelper.FlatNoteToInt : NoteHelper.SharpNoteToInt;
+        int rootValue = useFlats
+            ? NoteHelper.FlatNoteToInt(rootNote)
+            : NoteHelper.SharpNoteToInt(rootNote);
 
-        if (!noteMap.TryGetValue(rootNote, out int rootValue))
+        if (rootValue == -1)
             throw new ArgumentException($"Invalid root note: {rootNote}");
 
-        if (!ScaleFormulas.TryGetValue(scaleType, out int[] intervals))
+
+        if (!ScaleFormulas.TryGetValue(scaleType, out var intervals))
             throw new ArgumentException($"Unknown scale type: {scaleType}");
 
         List<string> scale = new();
