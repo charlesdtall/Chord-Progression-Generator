@@ -1,21 +1,334 @@
 [
-    { "Symbol": "C", "RomanNumeral": "I", "Notes": ["C", "E", "G"], "Synonyms": ["Cmaj", "C major"] },
-    { "Symbol": "C/G", "RomanNumeral": "I64", "Notes": ["G", "C", "E"], "Synonyms": ["Cad64"]},
-    { "Symbol": "Cm", "RomanNumeral": "i", "Notes": ["C", "Eb", "G"], "Synonyms": ["Cmin", "C minor", "C-"] },
-    { "Symbol": "Db/F", "RomanNumeral": "bII6", "Notes": ["F", "Ab", "Db"], "Synonyms": ["N6th", "N6"]},
-    { "Symbol": "Dm", "RomanNumeral": "ii", "Notes": ["D", "F", "A"], "Synonyms": ["Dmin", "D minor", "D-"] },
-    { "Symbol": "Do", "RomanNumeral": "iio", "Notes": ["D", "F", "Ab"], "Synonyms": ["Ddim", "D diminished"] },
-    { "Symbol": "Eb", "RomanNumeral": "bIII", "Notes": ["Eb", "G", "Bb"], "Synonyms": ["Ebmaj", "Eb major"] },
-    { "Symbol": "Em", "RomanNumeral": "iii", "Notes": ["E", "G", "B"], "Synonyms": ["Emin", "E minor", "E-"] },
-    { "Symbol": "F", "RomanNumeral": "IV", "Notes": ["F", "A", "C"], "Synonyms": ["Fmaj", "F major"] },
-    { "Symbol": "Fm", "RomanNumeral": "iv", "Notes": ["F", "Ab", "C"], "Synonyms": ["Fmin", "F minor", "F-"] },
-    { "Symbol": "G", "RomanNumeral": "V", "Notes": ["G", "B", "D"], "Synonyms": ["Gmaj", "G major"] },
-    { "Symbol": "Gm", "RomanNumeral": "v", "Notes": ["G", "Bb", "D"], "Synonyms": ["Gmin", "G minor", "G-"] },
-    { "Symbol": "Ab", "RomanNumeral": "bVI", "Notes": ["Ab", "C", "Eb"], "Synonyms": ["Abmaj", "Ab major"] },
-    { "Symbol": "Ab(+6)", "RomanNumeral": "It+6", "Notes": ["Ab", "C", "F#"], "Synonyms": ["bVI(+6)", "Italian Augmented 6th"]},
-    { "Symbol": "Ab(+6#43)", "RomanNumeral": "Fr+6", "Notes": ["Ab", "C", "D", "F#"], "Synonyms": ["bVI(+6#43)", "French Augmented 6th"]},
-    { "Symbol": "Ab(+653)", "RomanNumeral": "Ger+6", "Notes": ["Ab", "C", "Eb", "F#"], "Synonyms": ["bVI(+653", "German Augmented 6th"]},
-    { "Symbol": "Am", "RomanNumeral": "vi", "Notes": ["A", "C", "E"], "Synonyms": ["Amin", "A minor", "A-"] },
-    { "Symbol": "Bb", "RomanNumeral": "bVII", "Notes": ["Bb", "D", "F"], "Synonyms": ["Bbmaj", "Bb major"] },
-    { "Symbol": "Bo", "RomanNumeral": "viio", "Notes": ["B", "D", "F"], "Synonyms": ["Bdim", "B diminished"] }
+  {
+    "Symbol": "C",
+    "RomanNumeral": "I",
+    "Notes": [
+      "C",
+      "E",
+      "G"
+    ],
+    "Synonyms": [
+      "Cmaj",
+      "C major"
+    ]
+  },
+  {
+    "Symbol": "C/G",
+    "RomanNumeral": "I64",
+    "Notes": [
+      "G",
+      "C",
+      "E"
+    ],
+    "Synonyms": [
+      "Cad64"
+    ]
+  },
+  {
+    "Symbol": "Db/F",
+    "RomanNumeral": "bII6",
+    "Notes": [
+      "F",
+      "Ab",
+      "Db"
+    ],
+    "Synonyms": [
+      "N6th",
+      "N6"
+    ]
+  },
+  {
+    "Symbol": "D",
+    "RomanNumeral": "II",
+    "Notes": [
+      "D",
+      "F#",
+      "A"
+    ],
+    "Synonyms": ["V/V"]
+  },
+  {
+    "Symbol": "D7",
+    "RomanNumeral": "II7",
+    "Notes": [
+      "D",
+      "F#",
+      "A",
+      "C"
+    ],
+    "Synonyms": [
+      "V7/V"
+    ]
+  },
+  {
+    "Symbol": "Eb",
+    "RomanNumeral": "bIII",
+    "Notes": [
+      "Eb",
+      "G",
+      "Bb"
+    ],
+    "Synonyms": [
+      "Ebmaj",
+      "Eb major"
+    ]
+  },
+  {
+    "Symbol": "E7",
+    "RomanNumeral": "III7",
+    "Notes": [
+      "E",
+      "G#",
+      "B",
+      "D"
+    ],
+    "Synonyms": [
+      "V7/vi"
+    ]
+  },
+  {
+    "Symbol": "F",
+    "RomanNumeral": "IV",
+    "Notes": [
+      "F",
+      "A",
+      "C"
+    ],
+    "Synonyms": [
+      "Fmaj",
+      "F major"
+    ]
+  },
+  {
+    "Symbol": "G",
+    "RomanNumeral": "V",
+    "Notes": [
+      "G",
+      "B",
+      "D"
+    ],
+    "Synonyms": [
+      "Gmaj",
+      "G major"
+    ]
+  },
+  {
+    "Symbol": "G/D",
+    "RomanNumeral": "V64",
+    "Notes": [
+      "D",
+      "G",
+      "B"
+    ],
+    "Synonyms": []
+  },
+  {
+    "Symbol": "G7",
+    "RomanNumeral": "V7",
+    "Notes": [
+      "G",
+      "B",
+      "D",
+      "F"
+    ],
+    "Synonyms": []
+  },
+  {
+    "Symbol": "Ab",
+    "RomanNumeral": "bVI",
+    "Notes": [
+      "Ab",
+      "C",
+      "Eb"
+    ],
+    "Synonyms": [
+      "Abmaj",
+      "Ab major"
+    ]
+  },
+  {
+    "Symbol": "Ab(\u002B6)",
+    "RomanNumeral": "It\u002B6",
+    "Notes": [
+      "Ab",
+      "C",
+      "F#"
+    ],
+    "Synonyms": [
+      "bVI(\u002B6)",
+      "Italian Augmented 6th"
+    ]
+  },
+  {
+    "Symbol": "Ab(\u002B6#43)",
+    "RomanNumeral": "Fr\u002B6",
+    "Notes": [
+      "Ab",
+      "C",
+      "D",
+      "F#"
+    ],
+    "Synonyms": [
+      "bVI(\u002B6#43)",
+      "French Augmented 6th"
+    ]
+  },
+  {
+    "Symbol": "Ab(\u002B653)",
+    "RomanNumeral": "Ger\u002B6",
+    "Notes": [
+      "Ab",
+      "C",
+      "Eb",
+      "F#"
+    ],
+    "Synonyms": [
+      "bVI(\u002B653",
+      "German Augmented 6th"
+    ]
+  },
+  {
+    "Symbol": "Bb",
+    "RomanNumeral": "bVII",
+    "Notes": [
+      "Bb",
+      "D",
+      "F"
+    ],
+    "Synonyms": [
+      "Bbmaj",
+      "Bb major"
+    ]
+  },
+  {
+    "Symbol": "Am",
+    "RomanNumeral": "vi",
+    "Notes": [
+      "A",
+      "C",
+      "E"
+    ],
+    "Synonyms": [
+      "Amin",
+      "A minor",
+      "A-"
+    ]
+  },
+  {
+    "Symbol": "Am/C",
+    "RomanNumeral": "vi6",
+    "Notes": [
+      "C",
+      "E",
+      "A"
+    ],
+    "Synonyms": []
+  },
+  {
+    "Symbol": "Bo",
+    "RomanNumeral": "viio",
+    "Notes": [
+      "B",
+      "D",
+      "F"
+    ],
+    "Synonyms": [
+      "Bdim",
+      "B diminished"
+    ]
+  },
+  {
+    "Symbol": "Cm",
+    "RomanNumeral": "i",
+    "Notes": [
+      "C",
+      "Eb",
+      "G"
+    ],
+    "Synonyms": [
+      "Cmin",
+      "C minor",
+      "C-"
+    ]
+  },
+  {
+    "Symbol": "Dm",
+    "RomanNumeral": "ii",
+    "Notes": [
+      "D",
+      "F",
+      "A"
+    ],
+    "Synonyms": [
+      "Dmin",
+      "D minor",
+      "D-"
+    ]
+  },
+  {
+    "Symbol": "Dm7",
+    "RomanNumeral": "ii7",
+    "Notes": [
+      "D",
+      "F",
+      "A",
+      "C"
+    ],
+    "Synonyms": []
+  },
+  {
+    "Symbol": "Do",
+    "RomanNumeral": "iio",
+    "Notes": [
+      "D",
+      "F",
+      "Ab"
+    ],
+    "Synonyms": [
+      "Ddim",
+      "D diminished"
+    ]
+  },
+  {
+    "Symbol": "Em",
+    "RomanNumeral": "iii",
+    "Notes": [
+      "E",
+      "G",
+      "B"
+    ],
+    "Synonyms": [
+      "Emin",
+      "E minor",
+      "E-"
+    ]
+  },
+  {
+    "Symbol": "Fm",
+    "RomanNumeral": "iv",
+    "Notes": [
+      "F",
+      "Ab",
+      "C"
+    ],
+    "Synonyms": [
+      "Fmin",
+      "F minor",
+      "F-"
+    ]
+  },
+  {
+    "Symbol": "Gm",
+    "RomanNumeral": "v",
+    "Notes": [
+      "G",
+      "Bb",
+      "D"
+    ],
+    "Synonyms": [
+      "Gmin",
+      "G minor",
+      "G-"
+    ]
+  }
 ]

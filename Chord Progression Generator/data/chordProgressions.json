@@ -31,5 +31,21 @@
         [["I"], ["V"], ["vi"], ["iii"]],
         [["IV"], ["I"], ["IV"], ["V"]]
         ]
+    },
+    {
+        "Name": "I - V Modulation",
+        "Type": "Modulation",
+        "Bars": [
+            [["I"], ["vi6"], ["V64"], ["V/V"]],
+            [["V"]]
+        ]
+    },
+    {
+        "Name": "I - II Modulation",
+        "Type": "Modulation",
+        "Bars": [
+            [["I"], ["iii6"], ["II64"], ["V/II"]],
+            [["II"]]
+        ]
     }
 ]

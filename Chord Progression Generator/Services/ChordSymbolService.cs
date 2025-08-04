@@ -22,4 +22,11 @@ public class ChordSymbolService
         string json = File.ReadAllText(_filePath);
         return JsonSerializer.Deserialize<List<ChordSymbol>>(json) ?? new List<ChordSymbol>();
     }
+
+    public void SaveChords(List<ChordSymbol> chords)
+    {
+        var options = new JsonSerializerOptions { WriteIndented = true };
+        string json = JsonSerializer.Serialize(chords, options);
+        File.WriteAllText(_filePath, json);
+    }
 }

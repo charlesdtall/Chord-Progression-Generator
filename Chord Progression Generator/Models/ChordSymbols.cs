@@ -4,10 +4,10 @@ public class ChordSymbol
 {
     public required string Symbol { get; set; }
     public required string RomanNumeral { get; set; }
-    public required List<string> Notes { get; set; }
-    public List<string>? Synonyms { get; set; }
+    public required List<string> Notes { get; set; } = new();
+    public required List<string> Synonyms { get; set; } = new();
 
-    public ChordSymbol(string symbol, string romanNumeral, List<string> notes, List<string>? synonyms = null)
+    public ChordSymbol(string symbol, string romanNumeral, List<string> notes, List<string> synonyms)
     {
         Symbol = symbol;
         RomanNumeral = romanNumeral;

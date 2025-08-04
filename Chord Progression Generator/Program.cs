@@ -5,6 +5,14 @@ using ChordProgressionGenerator.Models;
 using ChordProgressionGenerator.Services;
 using ChordProgressionGenerator.Utils;
 
+// Need to add method for showing how often a particular chord goes to what other chords (print Transition Map)
+    // This means splitting up the Build Progression method
+// Add conversion to chord symbol
+// Add Transposition capabilities
+// Add modulations, which means ensuring it ends on desired chord, preferably as a cadence
+// If "loop" is chosen, it needs to end on a chord that the transitionMap points back to the first chord
+// Create UI
+
 namespace ChordProgressionGenerator
 {
     class Program
@@ -14,12 +22,17 @@ namespace ChordProgressionGenerator
             // Load chord definitions from JSON file
             ChordSymbolService chordService = new ChordSymbolService("data/chordSymbols.json");
             List<ChordSymbol> chords = chordService.LoadChords();
+            ChordSymbolEditor chordEditor = new ChordSymbolEditor(chordService);
+
+            /* List<string> addChordsTest = new List<string> { "V7/vi", "vi" };
+            chordEditor.PromptToAddMissingChords(addChordsTest); */
 
             // Load chord progressions from JSON file
             ChordProgressionService progressionService = new ChordProgressionService("data/chordProgressions.json");
             List<ChordProgression> progressions = progressionService.LoadProgressions();
 
-            PrintProgression(chords, progressions, 8);
+            PrintProgression(chords, progressions, chordEditor);
+            //PrintTransitionMap(chords, progressions);
             //ListFilteredFirstChordFrequencies(chords, progressions);
             //ListFirstChordFrequencies(chords, progressions);
             //ListFilteredProgressions(progressions);
@@ -253,20 +266,17 @@ namespace ChordProgressionGenerator
 
         /*==========================BUILDING PROGRESSION===========================*/
 
-        public static List<string> BuildProgression(List<ChordSymbol> chords, List<ChordProgression> progressions, int length)
+        public static Dictionary<string, List<string>> BuildTransitionMap(
+            List<ChordSymbol> chords,
+            List<ChordProgression> progressions)
         {
-            List<ChordProgression> filtered = GetUserFilters(progressions);
-            Dictionary<string, string> chordCanonicalLookup = BuildCanonicalLookup(chords);
-            Dictionary<string, List<string>> transitionMap = new Dictionary<string, List<string>>();
-            List<string> firstChords = new List<string>();
+            Dictionary<string, List<string>> transitionMap = new();
+            Dictionary<string, string> canonicalLookup = BuildCanonicalLookup(chords);
 
-            foreach (ChordProgression progression in filtered)
+
+            foreach (ChordProgression progression in progressions)
             {
-                List<string> flatChords = FlattenAndNormalize(progression, chordCanonicalLookup);
-
-                if (flatChords.Count == 0) continue;
-
-                firstChords.Add(flatChords[0]);
+                List<string> flatChords = FlattenAndNormalize(progression, canonicalLookup);
 
                 for (int i = 0; i < flatChords.Count - 1; i++)
                 {
@@ -278,6 +288,80 @@ namespace ChordProgressionGenerator
 
                     transitionMap[currentChord].Add(nextChord);
                 }
+
+                if (progression.Type == "Loop" && flatChords.Count > 1)
+                {
+                    string lastChord = flatChords[^1];
+                    string firstChord = flatChords[0];
+
+                    if (!transitionMap.ContainsKey(lastChord))
+                        transitionMap[lastChord] = new List<string>();
+                    
+                    transitionMap[lastChord].Add(firstChord);
+                }
+            }
+
+            return transitionMap;
+        }
+
+        public static int GetDesiredLength()
+        {
+            Console.Write("How many chords should the progression be? (e.g., 4 or 4-6): ");
+            string? input = Console.ReadLine();
+            int defaultLength = 4;
+
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                Console.WriteLine($"No input provided. Defaulting to {defaultLength} chords.");
+                return defaultLength;
+            }
+
+            input = input.Trim();
+
+            if (input.Contains("-"))
+            {
+                string[] parts = input.Split('-');
+
+                if (parts.Length == 2 &&
+                    int.TryParse(parts[0], out int min) &&
+                    int.TryParse(parts[1], out int max) &&
+                    min > 0 && max >= min)
+                {
+                    Random rng = new Random();
+                    return rng.Next(min, max + 1); // inclusive upper bound
+                }
+                else
+                {
+                    Console.WriteLine($"Invalid range input. Defaulting to {defaultLength} chords.");
+                    return defaultLength;
+                }
+            }
+            else if (int.TryParse(input, out int fixedLength) && fixedLength > 0)
+            {
+                return fixedLength;
+            }
+            else
+            {
+                Console.WriteLine($"Invalid input. Defaulting to {defaultLength} chords.");
+                return defaultLength;
+            }
+        }
+
+        public static List<string> BuildProgression(List<ChordSymbol> chords, List<ChordProgression> progressions)
+        {
+            List<ChordProgression> filtered = GetUserFilters(progressions);
+            Dictionary<string, string> chordCanonicalLookup = BuildCanonicalLookup(chords);
+            Dictionary<string, List<string>> transitionMap = BuildTransitionMap(chords, filtered);
+            int length = GetDesiredLength();
+            List<string> firstChords = new List<string>();
+
+            foreach (ChordProgression progression in filtered)
+            {
+                List<string> flatChords = FlattenAndNormalize(progression, chordCanonicalLookup);
+
+                if (flatChords.Count == 0) continue;
+                
+                firstChords.Add(flatChords[0]);
             }
 
             Random rng = new Random();
@@ -301,10 +385,11 @@ namespace ChordProgressionGenerator
             return newProgression;
         }
 
-        static void PrintProgression(List<ChordSymbol> chords, List<ChordProgression> progressions, int length)
+        static void PrintProgression(List<ChordSymbol> chords, List<ChordProgression> progressions, ChordSymbolEditor chordEditor)
         {
-            List<string> newProgression = BuildProgression(chords, progressions, length);
+            List<string> newProgression = BuildProgression(chords, progressions);
             Console.WriteLine(string.Join(", ", newProgression));
+            chordEditor.PromptToAddMissingChords(newProgression);
         }
 
         /*============================TESTING MODULES===============================*/
@@ -390,9 +475,7 @@ namespace ChordProgressionGenerator
 
         static void ListFilteredChordPairFrequencies(List<ChordSymbol> chords, List<ChordProgression> progressions)
         {
-            List<ChordProgression> filtered = GetUserFilters(progressions);
-
-            Dictionary<ChordPair, double> pairPercentages = GetChordPairFrequencies(chords, filtered);
+            Dictionary<ChordPair, double> pairPercentages = GetFilteredChordPairFrequencies(chords, progressions);
 
             foreach (KeyValuePair<ChordPair, double> kvp in pairPercentages.OrderByDescending(kvp => kvp.Value))
             {
@@ -412,14 +495,34 @@ namespace ChordProgressionGenerator
 
         static void ListFilteredFirstChordFrequencies(List<ChordSymbol> chords, List<ChordProgression> progressions)
         {
-            List<ChordProgression> filtered = GetUserFilters(progressions);
-
-            Dictionary<string, double> chordPercentages = GetFirstChordFrequencies(chords, filtered);
+            Dictionary<string, double> chordPercentages = GetFilteredFirstChordFrequencies(chords, progressions);
 
             foreach (KeyValuePair<string, double> kvp in chordPercentages.OrderByDescending(kvp => kvp.Value))
             {
                 Console.WriteLine($"{kvp.Key} : {(kvp.Value * 100):F2}%");
             }
         }
+
+        public static void PrintTransitionMap(List<ChordSymbol> chords, List<ChordProgression> progressions)
+        {
+            List<ChordProgression> filtered = GetUserFilters(progressions);
+            Dictionary<string, List<string>> transitionMap = BuildTransitionMap(chords, filtered);
+
+            Console.WriteLine("=== TRANSITION MAP ===\n");
+
+            foreach (var entry in transitionMap.OrderBy(kvp => kvp.Key))
+            {
+                var groupedTargets = entry.Value.GroupBy(x => x)
+                                                .Select(g => $"{g.Key} ({g.Count()})")
+                                                .OrderBy(s => s)
+                                                .ToList();
+
+                int totalTransitions = entry.Value.Count;
+
+                Console.WriteLine($"{entry.Key} -> {string.Join(", ", groupedTargets)}, Total: {totalTransitions}");
+            }
+        }
+
+
     }
 }
