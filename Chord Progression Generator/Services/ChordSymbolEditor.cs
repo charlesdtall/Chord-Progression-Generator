@@ -104,31 +104,43 @@ public class ChordSymbolEditor
                 .Where(n => n.Length > 0)
                 .ToList() ?? new();
 
-            ChordSymbol chordToAdd = new()
-            {
-                Symbol = symbol,
-                RomanNumeral = roman,
-                Synonyms = synonyms,
-                Notes = notes
-            };
+            // Check if a chord with this Symbol and RomanNumeral already exists
+            ChordSymbol? existingMatch = existingChords.FirstOrDefault(c =>
+                string.Equals(c.Symbol, symbol, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(c.RomanNumeral, roman, StringComparison.OrdinalIgnoreCase));
 
-            // Check if a chord with this symbol already exists
-            ChordSymbol? existing = existingChords.FirstOrDefault(c => c.Symbol == chordToAdd.Symbol);
-            if (existing != null)
+            if (existingMatch != null)
             {
-                existing.Synonyms ??= new List<string>();
-                foreach (string synonym in chordToAdd.Synonyms)
+                existingMatch.Synonyms ??= new List<string>();
+
+                foreach (string synonym in synonyms)
                 {
-                    if (!existing.Synonyms.Contains(synonym))
-                        existing.Synonyms.Add(synonym);
+                    if (!existingMatch.Synonyms.Contains(synonym, StringComparer.OrdinalIgnoreCase))
+                    {
+                        existingMatch.Synonyms.Add(synonym);
+                    }
                 }
+
+                if (existingMatch.Notes == null || existingMatch.Notes.Count == 0)
+                {
+                    existingMatch.Notes = notes;
+                }
+
+                Console.WriteLine($"Merged into existing chord: {existingMatch.Symbol} / {existingMatch.RomanNumeral}");
             }
             else
             {
-                newChords.Add(chordToAdd);
+                ChordSymbol newChord = new()
+                {
+                    Symbol = symbol,
+                    RomanNumeral = roman,
+                    Synonyms = synonyms,
+                    Notes = notes
+                };
+
+                newChords.Add(newChord);
             }
         }
-
 
         Console.WriteLine("\nHere are the new chords:");
         for (int i = 0; i < newChords.Count; i++)
@@ -171,7 +183,6 @@ public class ChordSymbolEditor
         _service.SaveChords(sortedChords);
         Console.WriteLine("Thank you! Chords saved.");
     }
-
 
     private static int GetSortValue(string symbol)
     {

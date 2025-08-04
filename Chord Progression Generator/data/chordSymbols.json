@@ -45,7 +45,19 @@
       "F#",
       "A"
     ],
-    "Synonyms": ["V/V"]
+    "Synonyms": [
+      "V/V"
+    ]
+  },
+  {
+    "Symbol": "D/A",
+    "RomanNumeral": "II64",
+    "Notes": [
+      "A",
+      "D",
+      "F#"
+    ],
+    "Synonyms": []
   },
   {
     "Symbol": "D7",
@@ -188,6 +200,18 @@
     ]
   },
   {
+    "Symbol": "A",
+    "RomanNumeral": "VI",
+    "Notes": [
+      "A",
+      "C#",
+      "E"
+    ],
+    "Synonyms": [
+      "V/II"
+    ]
+  },
+  {
     "Symbol": "Bb",
     "RomanNumeral": "bVII",
     "Notes": [
@@ -302,6 +326,16 @@
       "E minor",
       "E-"
     ]
+  },
+  {
+    "Symbol": "Em/G",
+    "RomanNumeral": "iii6",
+    "Notes": [
+      "G",
+      "B",
+      "E"
+    ],
+    "Synonyms": []
   },
   {
     "Symbol": "Fm",
