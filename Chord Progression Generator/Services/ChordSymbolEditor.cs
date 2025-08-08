@@ -6,16 +6,16 @@ namespace ChordProgressionGenerator.Utils;
 
 public class ChordSymbolEditor
 {
-    private readonly ChordSymbolService _service;
+    private readonly ChordSymbolService _chordService;
 
-    public ChordSymbolEditor(ChordSymbolService service)
+    public ChordSymbolEditor(ChordSymbolService chordService)
     {
-        _service = service;
+        _chordService = chordService;
     }
 
     public void PromptToAddMissingChords(List<string> chordInputs)
     {
-        List<ChordSymbol> existingChords = _service.LoadChords();
+        List<ChordSymbol> existingChords = _chordService.LoadChords();
         HashSet<string> knownSymbols = existingChords
             .SelectMany(c => new[] { c.Symbol, c.RomanNumeral }.Concat(c.Synonyms ?? new List<string>()))
             .ToHashSet();
@@ -69,7 +69,7 @@ public class ChordSymbolEditor
                     symbol = bestSpellingInput?.Trim() ?? "";
                 }
 
-                Console.Write("Enter the Roman numeral: ");
+                Console.Write("Enter the Roman numeral (key of C): ");
                 string? romanInput = Console.ReadLine();
                 roman = romanInput?.Trim() ?? "";
             }
@@ -104,43 +104,42 @@ public class ChordSymbolEditor
                 .Where(n => n.Length > 0)
                 .ToList() ?? new();
 
-            // Check if a chord with this Symbol and RomanNumeral already exists
-            ChordSymbol? existingMatch = existingChords.FirstOrDefault(c =>
-                string.Equals(c.Symbol, symbol, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(c.RomanNumeral, roman, StringComparison.OrdinalIgnoreCase));
-
-            if (existingMatch != null)
+            ChordSymbol chordToAdd = new()
             {
-                existingMatch.Synonyms ??= new List<string>();
+                Symbol = symbol,
+                RomanNumeral = roman,
+                Synonyms = synonyms,
+                Notes = notes
+            };
 
-                foreach (string synonym in synonyms)
+            // Check if a chord with this symbol already exists
+            ChordSymbol? existing = existingChords.FirstOrDefault(c => c.Symbol == chordToAdd.Symbol);
+            if (existing != null)
+            {
+                existing.Synonyms ??= new List<string>();
+                foreach (string synonym in chordToAdd.Synonyms)
                 {
-                    if (!existingMatch.Synonyms.Contains(synonym, StringComparer.OrdinalIgnoreCase))
-                    {
-                        existingMatch.Synonyms.Add(synonym);
-                    }
+                    if (!existing.Synonyms.Contains(synonym))
+                        existing.Synonyms.Add(synonym);
                 }
-
-                if (existingMatch.Notes == null || existingMatch.Notes.Count == 0)
-                {
-                    existingMatch.Notes = notes;
-                }
-
-                Console.WriteLine($"Merged into existing chord: {existingMatch.Symbol} / {existingMatch.RomanNumeral}");
             }
             else
             {
-                ChordSymbol newChord = new()
-                {
-                    Symbol = symbol,
-                    RomanNumeral = roman,
-                    Synonyms = synonyms,
-                    Notes = notes
-                };
+                newChords.Add(chordToAdd);
+            }
 
-                newChords.Add(newChord);
+            if (newChords.Count < unknownChords.Count)
+            {
+                Console.Write("\nDo you want to add another to the database? (y/n): ");
+                string? addAnother = Console.ReadLine();
+                if (addAnother == null || !addAnother.Trim().Equals("y", StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine("Done adding.");
+                    break;
+                }
             }
         }
+
 
         Console.WriteLine("\nHere are the new chords:");
         for (int i = 0; i < newChords.Count; i++)
@@ -180,7 +179,7 @@ public class ChordSymbolEditor
             .ThenBy(c => c.Symbol)
             .ToList();
 
-        _service.SaveChords(sortedChords);
+        _chordService.SaveChords(sortedChords);
         Console.WriteLine("Thank you! Chords saved.");
     }
 

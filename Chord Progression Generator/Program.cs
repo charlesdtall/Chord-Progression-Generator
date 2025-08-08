@@ -5,14 +5,14 @@ using ChordProgressionGenerator.Models;
 using ChordProgressionGenerator.Services;
 using ChordProgressionGenerator.Utils;
 
-// Need to add method for showing how often a particular chord goes to what other chords (print Transition Map)
-    // This means splitting up the Build Progression method
-// Add conversion to chord symbol
-// Add Transposition capabilities
-// Add modulations, which means ensuring it ends on desired chord, preferably as a cadence
-// If "loop" is chosen, it needs to end on a chord that the transitionMap points back to the first chord
-// Create UI
 
+//NEED TO MAKE SURE MODULATION CAN TAKE IN SYMBOLS TOO
+//ADD MAX REGER MODULATIONS JUST HAVE SOMETHIN' IN THERE FOR EVERYTHING
+//ADD FILTER ABILITY TO MODULATIONS
+//ADD CLI FOR USE ENTERING CHORDS FOR MODULATION
+//ADD LOOP BUILDING (BASICALLY I-I MODULATION FILTERED BY LOOP TYPE???)
+//ADDING SEQUENCES IS SLIGHTLY LONGER TERM, REQUIRES TRANSPOSITION LOGIC I HAVEN'T BEGUN YET
+//ADD WAY TO INCLUDE SYNONYMS IN CHORD EDITOR PROMPTS
 namespace ChordProgressionGenerator
 {
     class Program
@@ -27,425 +27,174 @@ namespace ChordProgressionGenerator
 
             ChordSymbolEditor chordEditor = new(chordService);
 
-            ChordAnalysisService analysisService = new();
-            ProgressionBuilderService builderService = new(analysisService);
+            ChordAnalysisService analysisService = new(chordService);
+            ProgressionFilterService filterService = new();
+            ProgressionBuilderService builderService = new(analysisService, filterService, chordService, chordEditor, progressionService);
 
-            //builderService.BuildProgression(chords, progressions);
-            TestChordAnalysis(chords, progressions, analysisService);
-
-
-            //PrintTransitionMap(chords, progressions, analysisService);
-            //ListFilteredFirstChordFrequencies(chords, progressions, analysisService);
-            //ListFilteredProgressions(progressions);
-            //ListFilteredChordPairFrequencies(chords, progressions, analysisService);
-            //ListChords(chords);
-        }
-
-/*         static void Main()
-        {
-            // Load chord definitions from JSON file
-            ChordSymbolService chordService = new ChordSymbolService("data/chordSymbols.json");
-            List<ChordSymbol> chords = chordService.LoadChords();
-            ChordSymbolEditor chordEditor = new ChordSymbolEditor(chordService);
-
-            // List<string> addChordsTest = new List<string> { "V7/vi", "vi" };
-            //chordEditor.PromptToAddMissingChords(addChordsTest);
-
-            // Load chord progressions from JSON file
-            ChordProgressionService progressionService = new ChordProgressionService("data/chordProgressions.json");
-            List<ChordProgression> progressions = progressionService.LoadProgressions();
-
-            PrintProgression(chords, progressions, chordEditor);
-            //PrintTransitionMap(chords, progressions);
-            //ListFilteredFirstChordFrequencies(chords, progressions);
-            //ListFirstChordFrequencies(chords, progressions);
-            //ListFilteredProgressions(progressions);
-            //ListFilteredChordPairFrequencies(chords, progressions);
-            //ListChordPairFrequences(chords, progressions);
-            //ListProgressions(progressions);
-            //ListChords(chords);
-        } */
-
- /*        static Dictionary<string, string> BuildCanonicalLookup(List<ChordSymbol> chords)
-        {
-            Dictionary<string, string> lookup = new Dictionary<string, string>(StringComparer.Ordinal);
-
-            foreach (ChordSymbol chord in chords)
-            {
-                foreach (string name in chord.AllNames())
-                {
-                    if (!lookup.ContainsKey(name))
-                    {
-                        lookup[name] = chord.RomanNumeral;
-                    }
-                }
-            }
-
-            return lookup;
-        } */
-
-/*         public static List<string> FlattenAndNormalize(ChordProgression progression, Dictionary<string, string> canonicalLookup)
-        {
-            List<string> flat = new List<string>();
-
-            foreach (List<List<string>> bar in progression.Bars)
-            {
-                foreach (List<string> beat in bar)
-                {
-                    foreach (string chord in beat)
-                    {
-                        if (canonicalLookup.TryGetValue(chord, out string? normalized))
-                            flat.Add(normalized);
-                        else
-                            flat.Add(chord);
-                    }
-                }
-            }
-
-            return flat;
-        } */
-
-        /* public static Dictionary<ChordPair, int> CountChordPairs(
-            List<ChordProgression> progressions, Dictionary<string, string> canonicalLookup)
-        {
-            Dictionary<ChordPair, int> pairCounts = new Dictionary<ChordPair, int>();
-
-            foreach (ChordProgression progression in progressions)
-            {
-                List<string> flatChords = FlattenAndNormalize(progression, canonicalLookup);
-
-                for (int i = 0; i < flatChords.Count - 1; i++)
-                {
-                    string from = flatChords[i];
-                    string to = flatChords[i + 1];
-                    ChordPair pair = new ChordPair(from, to);
-
-                    if (pairCounts.ContainsKey(pair))
-                        pairCounts[pair]++;
-                    else
-                        pairCounts[pair] = 1;
-                }
-
-                if (progression.Type == "Loop" && flatChords.Count > 1)
-                {
-                    string from = flatChords[^1];
-                    string to = flatChords[0];
-                    ChordPair loopPair = new ChordPair(from, to);
-
-                    if (pairCounts.ContainsKey(loopPair))
-                        pairCounts[loopPair]++;
-                    else
-                        pairCounts[loopPair] = 1;
-                }
-            }
-
-            return pairCounts;
-        } */
-
- /*        public static Dictionary<ChordPair, double> GetChordPairFrequencies(
-            List<ChordSymbol> chords, List<ChordProgression> progressions)
-        {
-            Dictionary<string, string> chordCanonicalLookup = BuildCanonicalLookup(chords);
-            Dictionary<ChordPair, int> rawCounts = CountChordPairs(progressions, chordCanonicalLookup);
-
-            int totalPairs = rawCounts.Values.Sum();
-
-            Dictionary<ChordPair, double> percentages = rawCounts.ToDictionary(
-                kvp => kvp.Key,
-                kvp => (double)kvp.Value / totalPairs
-            );
-            return percentages;
-        } */
-
-        // Updated to accept List<string>? for genres
-        public static List<ChordProgression> FilterProgressions(
-            List<ChordProgression> progressions,
-            List<string>? filterGenres,
-            string? period,
-            string? composer,
-            string? artist,
-            string? type,
-            int? yearAfter,
-            int? yearBefore)
-        {
-            return progressions
-                .Where(p =>
-                    (filterGenres == null || (p.Genre != null && p.Genre.Any(g => filterGenres.Any(fg => fg.Equals(g, StringComparison.OrdinalIgnoreCase))))) &&
-                    (string.IsNullOrEmpty(period) || p.Period?.Equals(period, StringComparison.OrdinalIgnoreCase) == true) &&
-                    (string.IsNullOrEmpty(composer) || p.Composer?.Equals(composer, StringComparison.OrdinalIgnoreCase) == true) &&
-                    (string.IsNullOrEmpty(artist) || p.Artist?.Equals(artist, StringComparison.OrdinalIgnoreCase) == true) &&
-                    (string.IsNullOrEmpty(type) || p.Type?.Equals(type, StringComparison.OrdinalIgnoreCase) == true) &&
-                    (!yearAfter.HasValue || (p.Year.HasValue && p.Year.Value >= yearAfter.Value)) &&
-                    (!yearBefore.HasValue || (p.Year.HasValue && p.Year.Value <= yearBefore.Value))
-                )
-                .ToList();
-        }
-
-        public static List<ChordProgression> GetUserFilters(List<ChordProgression> progressions)
-        {
-            Console.Write("Do you want to apply filters? (y/n): ");
-            string? response = Console.ReadLine()?.Trim().ToLower();
-
-            List<string>? filterGenres = null;
-            string? period = null;
-            string? artist = null;
-            string? composer = null;
-            string? type = null;
-            int? yearAfter = null;
-            int? yearBefore = null;
-
-            if (response == "y")
-            {
-                Console.Write("Filter by Genre(s) (comma separated, or leave blank): ");
-                string? genreInput = Console.ReadLine()?.Trim();
-                if (!string.IsNullOrEmpty(genreInput))
-                {
-                    filterGenres = genreInput
-                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                        .Select(g => g.Trim())
-                        .ToList();
-                }
-
-                Console.Write("Filter by Period (or leave blank): ");
-                period = Console.ReadLine()?.Trim();
-                if (string.IsNullOrEmpty(period)) period = null;
-
-                Console.Write("Filter by Artist (or leave blank): ");
-                artist = Console.ReadLine()?.Trim();
-                if (string.IsNullOrEmpty(artist)) artist = null;
-
-                Console.Write("Filter by Composer (or leave blank): ");
-                composer = Console.ReadLine()?.Trim();
-                if (string.IsNullOrEmpty(composer)) composer = null;
-
-                Console.Write("Filter by Type (or leave blank): ");
-                type = Console.ReadLine()?.Trim();
-                if (string.IsNullOrEmpty(type)) type = null;
-
-                Console.Write("Filter by minimum Year (or leave blank): ");
-                string? yearAfterInput = Console.ReadLine()?.Trim();
-                yearAfter = int.TryParse(yearAfterInput, out int ya) ? ya : null;
-
-                Console.Write("Filter by maximum Year (or leave blank): ");
-                string? yearBeforeInput = Console.ReadLine()?.Trim();
-                yearBefore = int.TryParse(yearBeforeInput, out int yb) ? yb : null;
-            }
-
-            List<ChordProgression> filtered = FilterProgressions(
-                progressions, filterGenres, period, composer, artist, type, yearAfter, yearBefore
+            // === Canonical Lookup (Symbol -> Roman) ===
+            Dictionary<string, string> canonicalLookup = chords.ToDictionary(
+                chord => chord.Symbol,
+                chord => chord.RomanNumeral ?? chord.Symbol
             );
 
-            return filtered;
+            // === Test Your Code Below ===
+            //CheckForMissingChords(chords, progressions, chordEditor, analysisService);
+            TestBuildModulationV2("I", "vi", chords, progressions, builderService);
+            //TestBackwardPath("Am", 6, chords, progressions, builderService);
+            //TestDirectModPaths("vi", 8, chords, progressions, builderService);
+            //TestCommonToneModulationPaths("bVII", 8, chords, progressions, builderService);
+            //PrintSimilarChords("I", chords, builderService);
+            //TestBuildModulationProgression("ii", "vi", chords, progressions, builderService);
+            //TestBuildProgression(chords, progressions, builderService, chordEditor);
+            //TestChordAnalysis(chords, progressions, analysisService);
         }
 
-/*         public static Dictionary<ChordPair, double> GetFilteredChordPairFrequencies(
-            List<ChordSymbol> chords,List<ChordProgression> progressions)
-        {
-            List<ChordProgression> filtered = GetUserFilters(progressions);
-            return GetChordPairFrequencies(chords, filtered);
-        } */
-
- /*        public static Dictionary<string, int> CountFirstChords(
-            List<ChordProgression> progressions, Dictionary<string, string> canonicalLookup)
-        {
-            Dictionary<string, int> chordCount = new Dictionary<string, int>();
-
-            foreach (ChordProgression progression in progressions)
-            {
-                List<string> flatChords = FlattenAndNormalize(progression, canonicalLookup);
-
-                string chord = flatChords[0];
-
-                if (chordCount.ContainsKey(chord))
-                    chordCount[chord]++;
-                else
-                    chordCount[chord] = 1;
-            }
-
-            return chordCount;
-        } */
-
- /*        public static Dictionary<string, double> GetFirstChordFrequencies(
-            List<ChordSymbol> chords, List<ChordProgression> progressions)
-        {
-            Dictionary<string, string> chordCanonicalLookup = BuildCanonicalLookup(chords);
-            Dictionary<string, int> rawCount = CountFirstChords(progressions, chordCanonicalLookup);
-
-            int totalFirstChords = rawCount.Values.Sum();
-
-            Dictionary<string, double> percentages = rawCount.ToDictionary(
-                kvp => kvp.Key,
-                kvp => (double)kvp.Value / totalFirstChords
-            );
-
-            return percentages;
-        } */
-
- /*        public static Dictionary<string, double> GetFilteredFirstChordFrequencies(
-            List<ChordSymbol> chords, List<ChordProgression> progressions)
-        {
-            List<ChordProgression> filtered = GetUserFilters(progressions);
-            return GetFirstChordFrequencies(chords, filtered);
-        } */
-
-        /*==========================BUILDING PROGRESSION===========================*/
-
-/*         public static Dictionary<string, List<string>> BuildTransitionMap(
+        /*============================TESTING MODULES===============================*/
+        static void CheckForMissingChords(
             List<ChordSymbol> chords,
-            List<ChordProgression> progressions)
+            List<ChordProgression> progressions, 
+            ChordSymbolEditor chordEditor, 
+            ChordAnalysisService analysisService)
         {
-            Dictionary<string, List<string>> transitionMap = new();
-            Dictionary<string, string> canonicalLookup = BuildCanonicalLookup(chords);
-
-
-            foreach (ChordProgression progression in progressions)
+            Dictionary<string, string> canonicalLookup = analysisService.BuildCanonicalLookup(chords);
+            foreach (var progression in progressions)
             {
-                List<string> flatChords = FlattenAndNormalize(progression, canonicalLookup);
-
-                for (int i = 0; i < flatChords.Count - 1; i++)
-                {
-                    string currentChord = flatChords[i];
-                    string nextChord = flatChords[i + 1];
-
-                    if (!transitionMap.ContainsKey(currentChord))
-                        transitionMap[currentChord] = new List<string>();
-
-                    transitionMap[currentChord].Add(nextChord);
-                }
-
-                if (progression.Type == "Loop" && flatChords.Count > 1)
-                {
-                    string lastChord = flatChords[^1];
-                    string firstChord = flatChords[0];
-
-                    if (!transitionMap.ContainsKey(lastChord))
-                        transitionMap[lastChord] = new List<string>();
-                    
-                    transitionMap[lastChord].Add(firstChord);
-                }
+                List<string> allChords = analysisService.FlattenAndNormalize(progression, canonicalLookup);
+                chordEditor.PromptToAddMissingChords(allChords);
             }
+        }
 
-            return transitionMap;
-        } */
-
-/*         public static int GetDesiredLength()
+        static void TestBuildModulationV2(
+            string start, 
+            string target, 
+            List<ChordSymbol> chords, 
+            List<ChordProgression> progressions, 
+            ProgressionBuilderService builderService)
         {
-            Console.Write("How many chords should the progression be? (e.g., 4 or 4-6): ");
-            string? input = Console.ReadLine();
-            int defaultLength = 4;
-
-            if (string.IsNullOrWhiteSpace(input))
+            List<List<string>> possibleModulations = builderService.BuildModulationV2(start, target, chords, progressions);
+            foreach (List<string> modulation in possibleModulations)
             {
-                Console.WriteLine($"No input provided. Defaulting to {defaultLength} chords.");
-                return defaultLength;
+                Console.WriteLine(string.Join(", ", modulation));
             }
-
-            input = input.Trim();
-
-            if (input.Contains("-"))
+        }
+        
+        static void TestDirectModPaths(
+            string target, 
+            int length, 
+            List<ChordSymbol> chords, 
+            List<ChordProgression> progressions,
+            ProgressionBuilderService builderService)
+        {
+            List<List<string>> possiblePaths = builderService.DirectModulationPaths(target, length, chords, progressions);
+            foreach (var path in possiblePaths)
             {
-                string[] parts = input.Split('-');
-
-                if (parts.Length == 2 &&
-                    int.TryParse(parts[0], out int min) &&
-                    int.TryParse(parts[1], out int max) &&
-                    min > 0 && max >= min)
-                {
-                    Random rng = new Random();
-                    return rng.Next(min, max + 1); // inclusive upper bound
-                }
-                else
-                {
-                    Console.WriteLine($"Invalid range input. Defaulting to {defaultLength} chords.");
-                    return defaultLength;
-                }
+                Console.WriteLine(string.Join(", ", path));
             }
-            else if (int.TryParse(input, out int fixedLength) && fixedLength > 0)
+        }
+
+        static void TestCommonToneModulationPaths(
+            string target, 
+            int length, 
+            List<ChordSymbol> chords, 
+            List<ChordProgression> progressions, 
+            ProgressionBuilderService builderService)
+        {
+            List<List<string>> possiblePaths = builderService.CommonToneModulationPaths(target, length, chords, progressions);
+            foreach (var path in possiblePaths)
             {
-                return fixedLength;
+                Console.WriteLine(string.Join(", ", path));
+            }
+        }
+
+        static void PrintSimilarChords(string transitionChord, List<ChordSymbol> chords, ProgressionBuilderService builderService)
+        {
+            List<string> similarChords = builderService.FindSimilarChords(transitionChord, chords);
+            /* List<string> similarChordsByRoman = new();
+
+            foreach (var chord in similarChords)
+                similarChordsByRoman.Add(chord.RomanNumeral);
+ */
+            Console.WriteLine(string.Join(", ", similarChords));
+        }
+
+        static void TestBackwardPath(
+            string target, 
+            int length, 
+            List<ChordSymbol> chords, 
+            List<ChordProgression> progressions,
+            ProgressionBuilderService builderService)
+        {
+            Console.WriteLine($"\nGenerating backward path from: {target}, length: {length}");
+
+            List<string> path = builderService.BuildBackwardPath(target, length, chords, progressions);
+
+            if (path.Count == 0)
+            {
+                Console.WriteLine("⚠️  No valid backward path found.");
             }
             else
             {
-                Console.WriteLine($"Invalid input. Defaulting to {defaultLength} chords.");
-                return defaultLength;
+                Console.WriteLine("✅ Backward path:");
+                Console.WriteLine(string.Join(" → ", path));
             }
+        }
+
+
+        /* static void TestBuildModulationProgression(
+            string firstChord, 
+            string targetChord, 
+            List<ChordSymbol> chords, 
+            List<ChordProgression> progressions, 
+            ProgressionBuilderService builderService)
+        {
+            List<string> newModulation = builderService.BuildModulationProgression(
+                firstChord, targetChord, chords, progressions
+            );
+
+            Console.WriteLine($"\n=== MODULATION PROGRESSION ===");
+            Console.WriteLine(string.Join(" → ", newModulation));
         } */
 
- /*        public static List<string> BuildProgression(List<ChordSymbol> chords, List<ChordProgression> progressions)
+        static void TestBuildProgression(
+            List<ChordSymbol> chords, 
+            List<ChordProgression> progressions,
+            ProgressionBuilderService builderService,
+            ChordSymbolEditor chordEditor)
         {
-            List<ChordProgression> filtered = GetUserFilters(progressions);
-            Dictionary<string, string> chordCanonicalLookup = BuildCanonicalLookup(chords);
-            Dictionary<string, List<string>> transitionMap = BuildTransitionMap(chords, filtered);
-            int length = GetDesiredLength();
-            List<string> firstChords = new List<string>();
+            List<string> newProgression = builderService.BuildProgression(chords, progressions);
 
-            foreach (ChordProgression progression in filtered)
-            {
-                List<string> flatChords = FlattenAndNormalize(progression, chordCanonicalLookup);
-
-                if (flatChords.Count == 0) continue;
-                
-                firstChords.Add(flatChords[0]);
-            }
-
-            Random rng = new Random();
-
-            string current = firstChords[rng.Next(firstChords.Count)];
-            List<string> newProgression = new List<string> { current };
-
-            for (int i = 1; i < length; i++)
-            {
-                if (!transitionMap.ContainsKey(current) || transitionMap[current].Count == 0)
-                {
-                    current = firstChords[rng.Next(firstChords.Count)];
-                    newProgression.Add(current);
-                    continue;
-                }
-                
-                List<string> nextChord = transitionMap[current];
-                current = nextChord[rng.Next(nextChord.Count)];
-                newProgression.Add(current);
-            }
-            return newProgression;
-        } */
-
-/*         static void PrintProgression(List<ChordSymbol> chords, List<ChordProgression> progressions, ChordSymbolEditor chordEditor)
-        {
-            List<string> newProgression = BuildProgression(chords, progressions);
-            Console.WriteLine(string.Join(", ", newProgression));
+            Console.WriteLine($"\n=== STANDARD PROGRESSION ===");
+            Console.WriteLine(string.Join(" → ", newProgression));
             chordEditor.PromptToAddMissingChords(newProgression);
-        } */
-
-        /*============================TESTING MODULES===============================*/
+        }
 
         static void TestChordAnalysis(
             List<ChordSymbol> chords, 
             List<ChordProgression> progressions,
             ChordAnalysisService analysisService)
         {
-            List<ChordProgression> filtered = GetUserFilters(progressions);
-            Console.WriteLine("");
-            Console.WriteLine("===CHORD PAIR FREQUENCIES===\n");
-            //Chord Pair Frequencies
+            ProgressionFilterService filterService = new();
+            List<ChordProgression> filtered = filterService.GetUserFilters(progressions);
+
+            /* Console.WriteLine("\n=== CHORD PAIR FREQUENCIES ===\n");
             Dictionary<ChordPair, double> pairPercentages = analysisService.GetChordPairFrequencies(chords, progressions);
             foreach (KeyValuePair<ChordPair, double> kvp in pairPercentages.OrderByDescending(kvp => kvp.Value))
             {
-                Console.WriteLine($"{kvp.Key.From} -> {kvp.Key.To} : {(kvp.Value * 100):F2}%");
+                Console.WriteLine($"{kvp.Key.From} → {kvp.Key.To} : {(kvp.Value * 100):F2}%");
             }
-            Console.WriteLine("");
-            Console.WriteLine("===FIRST CHORD FREQUENCIES===\n");
-            //First Chord Frequencies
+
+            Console.WriteLine("\n=== FIRST CHORD FREQUENCIES ===\n");
             Dictionary<string, double> chordPercentages = analysisService.GetFirstChordFrequencies(chords, filtered);
             foreach (KeyValuePair<string, double> kvp in chordPercentages.OrderByDescending(kvp => kvp.Value))
             {
                 Console.WriteLine($"{kvp.Key} : {(kvp.Value * 100):F2}%");
-            }
+            } */
 
-            Console.WriteLine("");
-            Console.WriteLine("=== TRANSITION MAP ===\n");
-            //Transition Map
-            Dictionary<string, List<string>> transitionMap = analysisService.BuildTransitionMap(chords, filtered);
-            foreach (var entry in transitionMap.OrderBy(kvp => kvp.Key))
+            Console.WriteLine("\n=== TRANSITION MAPS ===\n");
+            
+            Console.WriteLine("\n--> Forwards -->\n");
+            Dictionary<string, List<string>> forwardMap = analysisService.GetForwardTransitions(chords, filtered);
+            foreach (var entry in forwardMap.OrderBy(kvp => kvp.Key))
             {
                 var groupedTargets = entry.Value.GroupBy(x => x)
                                                 .Select(g => $"{g.Key} ({g.Count()})")
@@ -453,50 +202,12 @@ namespace ChordProgressionGenerator
                                                 .ToList();
 
                 int totalTransitions = entry.Value.Count;
-
                 Console.WriteLine($"{entry.Key} -> {string.Join(", ", groupedTargets)}, Total: {totalTransitions}");
             }
-        }
 
-/*         static void ListFilteredChordPairFrequencies(
-            List<ChordSymbol> chords, 
-            List<ChordProgression> progressions,
-            ChordAnalysisService analysisService)
-        {
-            List<ChordProgression> filtered = GetUserFilters(progressions);
-            Dictionary<ChordPair, double> pairPercentages = analysisService.GetChordPairFrequencies(chords, progressions);
-
-            foreach (KeyValuePair<ChordPair, double> kvp in pairPercentages.OrderByDescending(kvp => kvp.Value))
-            {
-                Console.WriteLine($"{kvp.Key.From} -> {kvp.Key.To} : {(kvp.Value * 100):F2}%");
-            }
-        } */
-/* 
-        static void ListFilteredFirstChordFrequencies(
-            List<ChordSymbol> chords, 
-            List<ChordProgression> progressions,
-            ChordAnalysisService analysisService)
-        {
-            List<ChordProgression> filtered = GetUserFilters(progressions);
-            Dictionary<string, double> chordPercentages = analysisService.GetFirstChordFrequencies(chords, filtered);
-
-            foreach (KeyValuePair<string, double> kvp in chordPercentages.OrderByDescending(kvp => kvp.Value))
-            {
-                Console.WriteLine($"{kvp.Key} : {(kvp.Value * 100):F2}%");
-            }
-        }
-
-        public static void PrintTransitionMap(
-            List<ChordSymbol> chords, 
-            List<ChordProgression> progressions, 
-            ChordAnalysisService analysisService)
-        {
-            List<ChordProgression> filtered = GetUserFilters(progressions);
-            Dictionary<string, List<string>> transitionMap = analysisService.BuildTransitionMap(chords, filtered);
-
-            Console.WriteLine("=== TRANSITION MAP ===\n");
-
-            foreach (var entry in transitionMap.OrderBy(kvp => kvp.Key))
+            Console.WriteLine("\n<-- Backwards <--\n");
+            Dictionary<string, List<string>> backwardMap = analysisService.GetBackwardTransitions(chords, filtered);
+            foreach (var entry in backwardMap.OrderBy(kvp => kvp.Key))
             {
                 var groupedTargets = entry.Value.GroupBy(x => x)
                                                 .Select(g => $"{g.Key} ({g.Count()})")
@@ -504,11 +215,8 @@ namespace ChordProgressionGenerator
                                                 .ToList();
 
                 int totalTransitions = entry.Value.Count;
-
-                Console.WriteLine($"{entry.Key} -> {string.Join(", ", groupedTargets)}, Total: {totalTransitions}");
+                Console.WriteLine($"{entry.Key} <- {string.Join(", ", groupedTargets)}, Total: {totalTransitions}");
             }
-        } */
-
-
+        }
     }
 }

@@ -13,6 +13,17 @@
     ]
   },
   {
+    "Symbol": "C/B",
+    "RomanNumeral": "Imaj42",
+    "Notes": [
+      "B",
+      "C",
+      "E",
+      "G"
+    ],
+    "Synonyms": []
+  },
+  {
     "Symbol": "C/G",
     "RomanNumeral": "I64",
     "Notes": [
@@ -22,6 +33,19 @@
     ],
     "Synonyms": [
       "Cad64"
+    ]
+  },
+  {
+    "Symbol": "C7",
+    "RomanNumeral": "I7",
+    "Notes": [
+      "C",
+      "E",
+      "G",
+      "Bb"
+    ],
+    "Synonyms": [
+      "V7/IV"
     ]
   },
   {
@@ -60,6 +84,17 @@
     "Synonyms": []
   },
   {
+    "Symbol": "D/C",
+    "RomanNumeral": "II42",
+    "Notes": [
+      "C",
+      "D",
+      "F#",
+      "A"
+    ],
+    "Synonyms": []
+  },
+  {
     "Symbol": "D7",
     "RomanNumeral": "II7",
     "Notes": [
@@ -83,6 +118,18 @@
     "Synonyms": [
       "Ebmaj",
       "Eb major"
+    ]
+  },
+  {
+    "Symbol": "E",
+    "RomanNumeral": "III",
+    "Notes": [
+      "E",
+      "G#",
+      "B"
+    ],
+    "Synonyms": [
+      "V/vi"
     ]
   },
   {
@@ -112,6 +159,16 @@
     ]
   },
   {
+    "Symbol": "F/C",
+    "RomanNumeral": "IV64",
+    "Notes": [
+      "C",
+      "F",
+      "A"
+    ],
+    "Synonyms": []
+  },
+  {
     "Symbol": "G",
     "RomanNumeral": "V",
     "Notes": [
@@ -123,6 +180,16 @@
       "Gmaj",
       "G major"
     ]
+  },
+  {
+    "Symbol": "G/B",
+    "RomanNumeral": "V6",
+    "Notes": [
+      "B",
+      "D",
+      "G"
+    ],
+    "Synonyms": []
   },
   {
     "Symbol": "G/D",
@@ -142,6 +209,17 @@
       "B",
       "D",
       "F"
+    ],
+    "Synonyms": []
+  },
+  {
+    "Symbol": "G7/B",
+    "RomanNumeral": "V65",
+    "Notes": [
+      "B",
+      "D",
+      "F",
+      "G"
     ],
     "Synonyms": []
   },
@@ -249,6 +327,17 @@
     "Synonyms": []
   },
   {
+    "Symbol": "Am7",
+    "RomanNumeral": "vi7",
+    "Notes": [
+      "A",
+      "C",
+      "E",
+      "G"
+    ],
+    "Synonyms": []
+  },
+  {
     "Symbol": "Bo",
     "RomanNumeral": "viio",
     "Notes": [
@@ -287,6 +376,19 @@
       "Dmin",
       "D minor",
       "D-"
+    ]
+  },
+  {
+    "Symbol": "Dm/C",
+    "RomanNumeral": "ii42",
+    "Notes": [
+      "C",
+      "D",
+      "F",
+      "A"
+    ],
+    "Synonyms": [
+      "Dm7/C"
     ]
   },
   {
