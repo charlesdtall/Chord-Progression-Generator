@@ -123,6 +123,7 @@ namespace ChordProgressionGenerator.Services
         //Temporarily returning all possible modulations
         public List<List<string>> BuildModulationV2(string start, string target, List<ChordSymbol> chords, List<ChordProgression> progressions)
         {
+            List<ChordProgression> filtered = _filterService.GetUserFilters(progressions);
             int length = GetDesiredLength();
             List<List<string>> failedPaths = new();
             List<List<string>> successfulPaths = new();
@@ -131,7 +132,7 @@ namespace ChordProgressionGenerator.Services
             //Filters for progressions that start with correct chord
             do
             {
-                List<List<string>> modulationSearch = DirectModulationPaths(target, length, chords, progressions);
+                List<List<string>> modulationSearch = DirectModulationPaths(target, length, chords, filtered);
                 foreach (List<string> search in modulationSearch)
                 {
                     if (search[0] == start){
@@ -150,7 +151,7 @@ namespace ChordProgressionGenerator.Services
             {
                 do
                 {
-                    List<List<string>> modulationSearch = CommonToneModulationPaths(target, length, chords, progressions);
+                    List<List<string>> modulationSearch = CommonToneModulationPaths(target, length, chords, filtered);
                     foreach (List<string> search in modulationSearch)
                     {
                         if (search[0] == start && search.Count == length){
